@@ -36,30 +36,19 @@ df_norm = normalizer.fit_transform(df)
 # ** CONVERSIÓN DE NP.ARRAY A PD.DATAFRAME
 df_norm = pd.DataFrame(df_norm, columns=headers)
 
+# *+ REDUCCIÓN DECIMALES (MEDIDAS PARA ARREGLAR EL ERROR 0.1)
+df_norm = df_norm.round(decimals=6)
+
 # ** GUARDADO DE CSV CON LOS DATOS NORMALIZADOS Y VALORES NULOS REEMPLAZADOS
 df_norm.to_csv('csv_processed/csv_result-sds_PICA_H1_processed.csv', sep=',')
 
 
-# ** ERROR. INPUT CONTAINS NAN, INFINITY OR A VALUE TOO LARGE FOR DTYPE('float64') 
+# ** ERROR 0.1. INPUT CONTAINS NAN, INFINITY OR A VALUE TOO LARGE FOR DTYPE('float64') 
 # ** EL TRATAMIENTO DE DATOS DEBERÍA HABER RELLENADO NULOS Y ELIMINADO COLUMNAS != FLOAT64
-outlier_method = EllipticEnvelope().fit(df)
+outlier_method = EllipticEnvelope().fit(df_norm)
 
         
 
 
-
-
-
-        
-
-
-
-
-
-
-
-#outlier_method = EllipticEnvelope().fit(df)
-#scores_pred = outlier_method.decision_function(df)
-#threshold = stats.scoreatpercentile(scores_pred, 25)
 
 
