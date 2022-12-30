@@ -19,28 +19,35 @@ from sklearn.feature_selection import RFE
 
 from sklearn import metrics
 
+def mape(y_true, y_pred):
+    mask = y_true != 0
+    return np.mean(np.abs((y_true[mask] - y_pred[mask]) / y_true[mask]))
+
+
 def plot_graph(target, y_pred, title, name, metricas):
         # ** CÁLCULO DE LAS MÉTRICAS DE EVALUACIÓN
         MAE = metricas['MAE'](target, y_pred)
         RMSE = metricas['RMSE'](target, y_pred)
-        #MAPE = metricas['MAPE'](target, y_pred)
+        MAPE = mape(target, y_pred)
         R2 = metricas['R2'](target, y_pred)
         
         # ** PLOT GRAPH
         fig, ax = plt.subplots()
         ax.scatter(target, y_pred, edgecolors=(0,0,0), s=1)
-        ax.plot([target.min(), target.max()],
-                [y_pred.min(), y_pred.max()], 'k--', lw=1)
+        coefs = np.polyfit(target, y_pred, 1)
+        recta = np.poly1d(coefs)
         x_min, x_max = ax.get_xlim()
+        ax.plot([x_min, x_max],
+                recta((x_min, x_max)), 'k--', lw=1)
         x = [x_min, x_max]
-        ax.plot(x, x, linestyle="dashed", marker="none", lw=1)
+        ax.plot(x, x, linestyle="dashed", marker="none", lw=1, color="#085979")
         ax.set_xlabel('Valor real de la clase')
         ax.set_ylabel('Predicción')
         ax.spines['bottom'].set_linewidth(1)
         ax.spines['left'].set_linewidth(1)
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
-        title_ = "MAE: %.3f   RMSE: %.3f  R2: %.3f --- " % (MAE, RMSE, R2)
+        title_ = "MAE: %.3f   RMSE: %.3f  MAPE: %.2f  R2: %.3f --- " % (MAE, RMSE, MAPE, R2)
         plt.title(title_ + str(title))
         plt.savefig("ML - Data analysis - Olive grove plantations/graphs/" + str(name), dpi=300)
 
