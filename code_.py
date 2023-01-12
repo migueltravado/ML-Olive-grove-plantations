@@ -25,17 +25,18 @@ def mape(y_true, y_pred):
         return np.mean(np.abs((y_true[mask] - y_pred[mask]) / y_true[mask]))
 
 
-def plot_graph(target, y_pred, title, name, metricas):
+def plot_graph(target, y_pred, title, name, metricas, aux = 0):
         # ** CÁLCULO DE LAS MÉTRICAS DE EVALUACIÓN
-        # MAE = metricas['MAE'](target, y_pred)
-        # RMSE = metricas['RMSE'](target, y_pred)
-        # MAPE = mape(target, y_pred)
-        # R2 = metricas['R2'](target, y_pred)
-        
-        ACC = metricas['ACC'](target, y_pred)
-        PREC = metricas['PREC'](target, y_pred)
-        RECALL = metricas['RECALL'](target, y_pred)
-        F1 = metricas['F1'](target, y_pred)
+        if aux == 0:
+                MAE = metricas['MAE'](target, y_pred)
+                RMSE = metricas['RMSE'](target, y_pred)
+                MAPE = mape(target, y_pred)
+                R2 = metricas['R2'](target, y_pred)
+        else:
+                ACC = metricas['ACC'](target, y_pred)
+                PREC = metricas['PREC'](target, y_pred)
+                RECALL = metricas['RECALL'](target, y_pred)
+                F1 = metricas['F1'](target, y_pred)
 
         # ** PLOT GRAPH
         fig, ax = plt.subplots()
@@ -53,27 +54,27 @@ def plot_graph(target, y_pred, title, name, metricas):
         ax.spines['left'].set_linewidth(1)
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
-        #title_ = "MAE: %.3f   RMSE: %.3f  MAPE: %.2f  R2: %.3f --- " % (MAE, RMSE, MAPE, R2)
-        title_ = "ACC: %.3f   PREC: %.3f  RECALL: %.2f  F1: %.3f --- " % (ACC, PREC, RECALL, F1)
+        if aux == 0:  
+                title_ = "MAE: %.3f   RMSE: %.3f  MAPE: %.2f  R2: %.3f --- " % (MAE, RMSE, MAPE, R2)
+        else:
+                title_ = "ACC: %.3f   PREC: %.3f  RECALL: %.2f  F1: %.3f --- " % (ACC, PREC, RECALL, F1)
         plt.title(title_ + str(title))
-        plt.savefig("ML - Data analysis - Olive grove plantations/graphs/" + str(name), dpi=300)
+        plt.savefig("graphs/" + str(name), dpi=300)
+        plt.show()
 
 # ** LECTURA DEL ARCHIVO ORIGINAL CSV
-df_H1 = pd.read_csv("ML - Data analysis - Olive grove plantations/csv/csv_result-sds_PICA_H1.csv", 
+df_H1 = pd.read_csv("csv/csv_result-sds_PICA_H1.csv", 
                  decimal=".", delimiter=",", na_values=['','?', ' '], on_bad_lines='skip') # na_values=['','?']
-df_H2 = pd.read_csv("ML - Data analysis - Olive grove plantations/csv/csv_result-sds_PICA_H2.csv", 
+df_H2 = pd.read_csv("csv/csv_result-sds_PICA_H2.csv", 
                  decimal=".", delimiter=",", na_values=['','?', ' '], on_bad_lines='skip')
-df_H3 = pd.read_csv("ML - Data analysis - Olive grove plantations/csv/csv_result-sds_PICA_H3.csv", 
+df_H3 = pd.read_csv("csv/csv_result-sds_PICA_H3.csv", 
                  decimal=".", delimiter=",", na_values=['','?', ' '], on_bad_lines='skip')
-df_H4 = pd.read_csv("ML - Data analysis - Olive grove plantations/csv/csv_result-sds_PICA_H4.csv", 
+df_H4 = pd.read_csv("csv/csv_result-sds_PICA_H4.csv", 
                  decimal=".", delimiter=",", na_values=['','?', ' '], on_bad_lines='skip')
 
 df = pd.concat([df_H1, df_H2, df_H3, df_H4], axis=0)
 
-df = pd.read_csv("ML - Data analysis - Olive grove plantations/csv/csv_result-sds_TRAM_H1.csv", 
-                 decimal=".", delimiter=",", na_values=['','?', ' '], on_bad_lines='skip')
-
-
+df = df_H1
 
 # ** TRATAMIENTO VALORES NULOS. SUSTITUCIÓN IN-PLACE POR MEDIA ARITMÉTICA
 n_instances = df.shape[0]
@@ -149,7 +150,7 @@ seed = 1
 y_pred = model_selection.cross_val_predict(reg, data, target, 
                            cv = KFold(n_splits=10, random_state=seed, shuffle=True))
 # ** GRÁFICA MATPLOTLIB
-# plot_graph(target, y_pred, "REG", "RLM.png", metricas_rg)
+plot_graph(target, y_pred, "REG", "RLM.png", metricas_rg)
 
 
 # ** OPTMIZACIÓN DEL ALGORITMO CON ELIMINACIÓN RECURSIVA - SELECCIÓN DE ATRIBUTOS
@@ -164,7 +165,7 @@ seed = 1
 y_pred = model_selection.cross_val_predict(reg, data[:, selected_features], target, 
                            cv = KFold(n_splits=10, random_state=seed, shuffle=True))
 # ** GRÁFICA MATPLOTLIB
-# plot_graph(target, y_pred, "REG OPT", "RLM_Optimized.png", metricas_rg)
+plot_graph(target, y_pred, "REG OPT", "RLM_Optimized.png", metricas_rg)
 
 
 # ** MODELADO SUPERVISADO - KNN
@@ -175,20 +176,20 @@ seed = 1
 y_pred = model_selection.cross_val_predict(knn, data, target, 
                            cv = KFold(n_splits=10, random_state=seed, shuffle=True))
 # ** GRÁFICA MATPLOTLIB
-# plot_graph(target, y_pred, "KNN k = " + str(k), "KNN.png", metricas_rg)
+plot_graph(target, y_pred, "KNN k = " + str(k), "KNN.png", metricas_rg)
 
 
-# ** MODELADO CATEGÓRICO - LOGR
-logr = LogisticRegression(solver='sag', max_iter=100, random_state=seed, multi_class='auto')
+# # ** MODELADO CATEGÓRICO - LOGR
+# logr = LogisticRegression(solver='sag', max_iter=100, random_state=seed, multi_class='auto')
 
-bins = 20
-target_cat = pd.cut(target, bins, labels=[i for i in range(bins)])
+# bins = 20
+# target_cat = pd.cut(target, bins, labels=[i for i in range(bins)])
 
-# ** PREDICCIÓN DE LA VARIABLE OBJETIVO - CLASE (LOGR)
-y_pred = model_selection.cross_val_predict(logr, data, target_cat, cv = KFold(n_splits=10, random_state=seed, shuffle=True))
+# # ** PREDICCIÓN DE LA VARIABLE OBJETIVO - CLASE (LOGR)
+# y_pred = model_selection.cross_val_predict(logr, data, target_cat, cv = KFold(n_splits=10, random_state=seed, shuffle=True))
 
-# ** GRÁFICA MATPLOTLIB
-plot_graph(target_cat, y_pred, "LOGR" + str(k), "LOGR.png", metricas_ct)
+# # ** GRÁFICA MATPLOTLIB
+# plot_graph(target_cat, y_pred, "LOGR" + str(k), "LOGR.png", metricas_ct, 1)
 
 
 
