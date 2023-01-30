@@ -64,6 +64,7 @@ def plot_graph(target, y_pred, title, name, metricas, aux = 0):
                 title_ = "ACC: %.3f   PREC: %.3f  RECALL: %.2f  F1: %.3f --- " % (ACC, PREC, RECALL, F1)
         plt.title(title_ + str(title))
         plt.savefig("graphs/" + str(name), dpi=300)
+        plt.show()
 
 # ** LECTURA DEL ARCHIVO ORIGINAL CSV
 df_H1 = pd.read_csv("csv/csv_result-sds_PICA_H1.csv", 
@@ -203,7 +204,7 @@ y_pred = model_selection.cross_val_predict(reg, data[:, selected_features], targ
 plot_graph(target, y_pred, "REG OPT", "RLM_Optimized.png", metricas_rg)
 
 
-# ** Boxplot de la distribución de los atributos normalizados
+# ** Boxplot de la distribución de los atributos normalizados 
 n_features = int(0.05 * len(df_norm.columns))
 rfe = RFE(estimator=reg_opt, n_features_to_select=n_features)
 fit = rfe.fit(data, target)
